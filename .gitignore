@@ -1,0 +1,59 @@
+.DS_Store
+.vscode/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+article/
+
+# Logs
+*.log
+log/
+
+# Caches
+cache/
+
+# Models
+models/
+
+# Figures / outputs
+figures/
+code_bench/outputs/
+
+# Temp / local
+nohup.out
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# OS / tools
+chromedriver-mac-arm64/
+
+# Only open source agent + evaluate code under code_bench
+code_bench/*
+!code_bench/agent/
+!code_bench/agent/**
+!code_bench/evaluate/
+!code_bench/evaluate/**
+!code_bench/utils/
+!code_bench/utils/**
+!code_bench/tools/
+code_bench/tools/*
+!code_bench/tools/tools_rapidapi_subscribe_url.py
+
+# Open-source specific data files
+data/*
+!data/question/
+data/question/*
+!data/question/select_data_real_remove_duplicates.jsonl
+tools/*
+!tools/tools_all_annotated.jsonl
+!tools/home_url.json
+
+
+*.pyc
