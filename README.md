@@ -4,7 +4,7 @@ FinToolBench is a real-world, runnable benchmark for evaluating financial tool-u
 
 ## Overview (This Release)
 
-This open release contains the **agent runner**, **evaluation pipeline**, and **minimal data** required to reproduce results. Tool crawling/building and other internal scripts are not included.
+This open release contains the **evaluation pipeline**, **RapidAPI subscription helper**, and **minimal data** required to reproduce results. Full agent training/build scripts and other internal components are not included.
 
 ## Highlights
 
@@ -32,7 +32,7 @@ Key files:
 - **Composition**: 166 single-tool + 129 multi-tool questions.
 
 Key files:
-- `data/question/` (question jsonl files)
+- `data/question/select_data_real_remove_duplicates.jsonl` (benchmark questions)
 
 ## Evaluation
 
@@ -53,12 +53,12 @@ FATR injects finance attributes into tool cards and stabilizes execution via cac
 
 ## What This Repo Includes (Open Parts)
 
-This release is limited to the agent/evaluation pipeline and the minimal tool data needed to reproduce results.
+This release is limited to the evaluation pipeline, subscription helper, and minimal tool data needed to reproduce results.
 
 **Code**
-- `code_bench/agent/` agent runner and core logic
 - `code_bench/evaluate/` evaluation pipeline
 - `code_bench/tools/tools_rapidapi_subscribe_url.py` subscribe from `tools/home_url.json`
+- `code_bench/utils/model_requests.py` model request wrapper used by evaluation
 
 **Data**
 - `data/question/select_data_real_remove_duplicates.jsonl` benchmark questions
@@ -81,48 +81,8 @@ python -u code_bench/tools/tools_rapidapi_subscribe_url.py
 
 3. Configure LLM API (set your model endpoint and credentials in the code or environment as required).
 
-4. Run the agent:
-```
-python -u code_bench/agent/main.py \
-  --tool_path ./tools \
-  --embedding_cache_dir ./cache \
-  --top_k 20 \
-  --output_path data/result/result \
-  --data_path data/question/select_data_real_remove_duplicates.jsonl \
-  --execution_model_name <LLM for tool execution> \
-  --extract_model_name <LLM for answer extraction>
-```
 
-5. Run evaluation:
-```
-python -u code_bench/evaluate/run_relative_eval.py \
-  --inputs data/result/result/result_model_name_full.jsonl \
-  --output_dir data/eval/relative_model
-```
-
-## Running the Agent
-
-Entry point:
-
-```
-python -u code_bench/agent/main.py \
-  --tool_path ./tools \
-  --embedding_cache_dir ./cache \
-  --top_k 20 \
-  --output_path data/result/result \
-  --data_path data/question/select_data_real_remove_duplicates.jsonl \
-  --execution_model_name <LLM for tool execution> \
-  --extract_model_name <LLM for answer extraction>
-```
-
-Set `--setting` to `full` or `wo_injection` if you want a single setting.
-
-Outputs are written to:
-
-- `data/result/result/` and `data/result/result_ablation/`
-
-## Running Evaluation
-
+4. Run evaluation:
 ```
 python -u code_bench/evaluate/run_relative_eval.py \
   --inputs data/result/result/result_model_name_full.jsonl \
@@ -130,9 +90,9 @@ python -u code_bench/evaluate/run_relative_eval.py \
 ```
 
 This writes:
-- `data/eval/relative_ablation/<setting>_results.jsonl`
-- `data/eval/relative_ablation/<setting>_metrics.json`
-- `data/eval/relative_ablation/all_metrics.json`
+- `<output_dir>/<setting>_results.jsonl`
+- `<output_dir>/<setting>_metrics.json`
+- `<output_dir>/all_metrics.json`
 
 ## RapidAPI Subscription (Optional)
 
