@@ -9,6 +9,7 @@ __pycache__/
 .ruff_cache/
 .ipynb_checkpoints/
 article/
+FinToolBench/
 
 # Logs
 *.log
