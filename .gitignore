@@ -40,7 +40,8 @@ code_bench/*
 !code_bench/evaluate/
 !code_bench/evaluate/**
 !code_bench/utils/
-!code_bench/utils/**
+code_bench/utils/*
+!code_bench/utils/model_requests.py
 !code_bench/tools/
 code_bench/tools/*
 !code_bench/tools/tools_rapidapi_subscribe_url.py
