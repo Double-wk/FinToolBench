@@ -119,82 +119,82 @@ def parse_json_from_llm(text: str) -> Optional[dict]:
 def build_score_prompt(question: str, answer: str, gold: str, answer_type: str) -> str:
     if answer_type == "numeric":
         return f"""
-你是严格评测员，请判断“模型回答”的数值是否与“标准答案”数值等价（允许单位换算，不接受接近）。
-评分规则：
-- 1.0：数值等价
-- 0.0：其他
+You are a strict evaluator. Please determine whether the numeric value in the "model answer" is equivalent to the numeric value in the "gold answer" (unit conversion is allowed; approximate values are not accepted).
+Scoring rules:
+- 1.0: numerically equivalent
+- 0.0: otherwise
 
-问题：{question}
-模型回答：{answer}
-标准答案：{gold}
+Question: {question}
+Model answer: {answer}
+Gold answer: {gold}
 
-请只输出JSON：
-{{
+Please output JSON only:
+{
   "score": 0.0,
   "label": "correct|wrong",
-  "reason": "20字以内"
-}}
+  "reason": "within 20 words"
+}
 """.strip()
     if answer_type == "choice":
         return f"""
-你是严格评测员，请判断“模型回答”的选项是否与“标准答案”选项一致。
-评分规则：
-- 1.0：选项完全一致
-- 0.0：其他（包括多选或模糊）
+You are a strict evaluator. Please determine whether the option in the "model answer" is consistent with the option in the "gold answer".
+Scoring rules:
+- 1.0: options are exactly the same
+- 0.0: otherwise (including multiple selections or ambiguity)
 
-问题：{question}
-模型回答：{answer}
-标准答案：{gold}
+Question: {question}
+Model answer: {answer}
+Gold answer: {gold}
 
-请只输出JSON：
-{{
+Please output JSON only:
+{
   "score": 0.0,
   "label": "correct|wrong",
-  "reason": "20字以内"
-}}
+  "reason": "within 20 words"
+}
 """.strip()
     if answer_type == "criterium":
         return f"""
-你是严格评测员，请判断“模型回答”的多因子分析是否合理。
-评估维度：
-1) 覆盖关键因素（coverage）
-2) 正负方向一致（direction）
-3) 权重是否失真（calibration）
+You are a strict evaluator. Please determine whether the multi-factor analysis in the "model answer" is reasonable.
+Evaluation dimensions:
+1) Covers key factors (coverage)
+2) Consistent sign/direction (direction)
+3) Distorted weighting or not (calibration)
 
-评分规则：
-- 1.0：合理
-- 0.5：部分合理
-- 0.0：不合理
+Scoring rules:
+- 1.0: reasonable
+- 0.5: partially reasonable
+- 0.0: unreasonable
 
-问题：{question}
-模型回答：{answer}
-标准答案：{gold}
+Question: {question}
+Model answer: {answer}
+Gold answer: {gold}
 
-请只输出JSON：
-{{
+Please output JSON only:
+{
   "score": 0.0,
   "label": "correct|partial|wrong",
-  "reason": "20字以内"
-}}
+  "reason": "within 20 words"
+}
 """.strip()
     return f"""
-你是严格评测员，请根据“标准答案”判断“模型回答”的正确性。
+You are a strict evaluator. Please judge the correctness of the "model answer" based on the "gold answer".
 
-评分规则：
-- 1.0：完全正确（允许等价表达、单位换算）
-- 0.5：部分正确（核心结论对，但缺关键点/存在小错误）
-- 0.0：错误或答非所问
+Scoring rules:
+- 1.0: fully correct (equivalent expressions and unit conversion are allowed)
+- 0.5: partially correct (core conclusion is correct, but missing key points / has minor errors)
+- 0.0: wrong or does not answer the question
 
-问题：{question}
-模型回答：{answer}
-标准答案：{gold}
+Question: {question}
+Model answer: {answer}
+Gold answer: {gold}
 
-请只输出JSON：
-{{
+Please output JSON only:
+{
   "score": 0.0,
   "label": "correct|partial|wrong",
-  "reason": "20字以内"
-}}
+  "reason": "within 20 words"
+}
 """.strip()
 
 

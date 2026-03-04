@@ -36,8 +36,6 @@ chromedriver-mac-arm64/
 
 # Only open source agent + evaluate code under code_bench
 code_bench/*
-!code_bench/agent/
-!code_bench/agent/**
 !code_bench/evaluate/
 !code_bench/evaluate/**
 !code_bench/utils/

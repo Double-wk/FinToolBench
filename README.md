@@ -20,7 +20,7 @@ This open release contains the **agent runner**, **evaluation pipeline**, and **
 - **Sources**: RapidAPI endpoints and AkShare interfaces.
 - **Filtering**: executability checks, deduplication, and authentication feasibility.
 - **Normalization**: canonical parameter names, consistent date formats, and structured tool signatures.
-- **Finance attributes**: `update_frequency`, `intent_type`, and `regulatory_domain` for each tool.
+- **Finance attributes**: `timeliness`, `intent_type`, and `regulatory_domains` for each tool.
 
 Key files:
 - `tools/tools_all_annotated.jsonl` (tool manifest + finance tags)

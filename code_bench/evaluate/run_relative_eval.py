@@ -40,12 +40,10 @@ def main() -> None:
     os.makedirs(args.output_dir, exist_ok=True)
     logger.info("Start evaluation: inputs=%s output_dir=%s", args.inputs, args.output_dir)
 
-    # judge = build_default_judge()
 
     all_metrics = {}
     for input_path in args.inputs:
         data = load_jsonl_as_dict(input_path)
-        # results, metrics = evaluate_dataset(data, judge)
         results, metrics = evaluate_dataset(data)
         setting_name = os.path.splitext(os.path.basename(input_path))[0]
         out_results = os.path.join(args.output_dir, f"{setting_name}_results.jsonl")
@@ -62,11 +60,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
-# nohup python -u code_bench/evaluate/run_relative_eval.py \
-#   --inputs /Users/double/Documents/LLM/论文/fin_beachmark/data/result/result_ablation_all/result_Doubao-Seed-1.6_full.jsonl /Users/double/Documents/LLM/论文/fin_beachmark/data/result/result_ablation_all/result_Doubao-Seed-1.6_wo_injection.jsonl /Users/double/Documents/LLM/论文/fin_beachmark/data/result/result_ablation/result_GLM-4.7-Flash_full.jsonl /Users/double/Documents/LLM/论文/fin_beachmark/data/result/result_ablation/result_Qwen3-8B_full.jsonl\
-#   --output_dir data/eval/relative_new >/Users/double/Documents/LLM/论文/fin_beachmark/eval_no_injection_new.log 2>&1 &
-
-
-

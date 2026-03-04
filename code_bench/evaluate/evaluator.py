@@ -34,9 +34,6 @@ logger = logging.getLogger(__name__)
 # 重复评测次数（可通过环境变量覆盖）
 SCORE_REPEAT_K = int(os.getenv("SCORE_REPEAT_K", "3"))
 
-
-# =========================
-# Data loading
 # =========================
 def load_jsonl_as_dict(path: str, id_key: str = "id") -> Dict[str, dict]:
     data: Dict[str, dict] = {}
@@ -69,7 +66,6 @@ def extract_answer(example: dict) -> str:
 
 
 def extract_ground_truth(example: dict) -> str:
-    # ✅ ground_truth 是真实结果
     return str(example.get("ground_truth") or "").strip()
 
 
@@ -162,13 +158,13 @@ def evaluate_one(
         "execution_result": answer,
         "ground_truth": gold,
 
-        # ✅ tool ability
+        # tool ability
         "tool_invoked": tool_invoked,
         "select_tools": select_tools,
         "pass": pass_label,
         "pass_reason": pass_reason,
 
-        # ✅ final answer quality (repeat3 stable)
+        # final answer quality (repeat3 stable)
         "score_mean": score_mean,
         "label_majority": label_majority,
         "score_reason": score_reason,
@@ -179,7 +175,6 @@ def evaluate_one(
 
 def evaluate_dataset(
     data: Dict[str, dict],
-    # judge: LLMJudge,
 ) -> Tuple[List[dict], dict]:
     tool_meta_path = os.getenv("TOOL_METADATA_PATH", "tools/tools_all_annotated.jsonl")
     tool_meta = load_tool_metadata(tool_meta_path)
@@ -189,7 +184,6 @@ def evaluate_dataset(
     results = []
     for qid, example in tqdm(data.items(), total=len(data), desc="Evaluating"):
         result = evaluate_one(example, judge, tool_meta, compliance_judge)
-        # result.pop("compliance", None)
         results.append(result)
 
     cap_metrics = summarize_capability(results)
@@ -200,9 +194,3 @@ def evaluate_dataset(
     }
     log_capability_summary(logger, cap_metrics)
     return results, metrics
-
-
-# def build_default_judge() -> LLMJudge:
-#     return LLMJudge(
-#         model=os.getenv("JUDGE_MODEL", "ep-20251101221159-hhmrg"),
-#     )

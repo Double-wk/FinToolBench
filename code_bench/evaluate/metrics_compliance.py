@@ -83,58 +83,59 @@ def _parse_json_from_llm(text: str) -> Optional[dict]:
 
 def _build_intent_prompt(question: str, tool_name: str, tags: dict) -> str:
     return f"""
-你是金融工具合规评测员，请判断“问题需求”与“工具意图”是否匹配。
-只考虑工具意图，不考虑是否调用成功。
-工具意图仅取 informational / advisory / transactional 之一。
 
-问题：{question}
-工具名称：{tool_name}
-工具意图(intent_type)：{tags.get("intent_type")}
-工具描述：{tags.get("description") or ""}
+You are a financial tool compliance evaluator. Determine whether the "question requirement" matches the "tool intent".
+Consider only tool intent. Do not consider whether the tool call succeeds.
+Tool intent must be one of informational / advisory / transactional.
 
-请只输出JSON：
-{{
+Question: {question}
+Tool name: {tool_name}
+Tool intent (intent_type): {tags.get("intent_type")}
+Tool description: {tags.get("description") or ""}
+
+Output JSON only:
+{
   "match": "yes|no",
-  "reason": "20字以内"
-}}
+  "reason": "within 20 words"
+}
 """.strip()
 
 
 def _build_domain_prompt(question: str, tool_name: str, tags: dict) -> str:
     return f"""
-你是金融工具合规评测员，请判断“问题领域”与“工具监管领域”是否匹配。
-只考虑领域是否一致或存在明确交集。
+You are a financial tool compliance evaluator. Please determine whether the "question domain" matches the "tool regulatory domain".
+Only consider whether the domains are consistent or have a clear intersection.
 
-问题：{question}
-工具名称：{tool_name}
-工具监管领域(regulatory_domains)：{tags.get("regulatory_domains")}
-工具描述：{tags.get("description") or ""}
+Question: {question}
+Tool name: {tool_name}
+Tool regulatory domain (regulatory_domains): {tags.get("regulatory_domains")}
+Tool description: {tags.get("description") or ""}
 
-请只输出JSON：
-{{
+Please output JSON only:
+{
   "match": "yes|no",
-  "reason": "20字以内"
-}}
+  "reason": "within 20 words"
+}
 """.strip()
 
 
-def _build_freshness_prompt(question: str, tool_name: str, tags: dict) -> str:
+def _build_timeliness_prompt(question: str, tool_name: str, tags: dict) -> str:
     print(tags.get("description"))
-    print(tags.get("update_frequency"))
+    print(tags.get("timeliness"))
     return f"""
-你是金融工具合规评测员，请判断“问题的时效性需求”与“工具数据更新频率”是否匹配。
-只输出是否匹配，忽略工具调用成功与否。
+You are a financial tool compliance evaluator. Please determine whether the "timeliness requirement of the question" matches the "tool data timeliness".
+Only output whether they match, and ignore whether the tool call succeeds.
 
-问题：{question}
-工具名称：{tool_name}
-工具更新频率(update_frequency)：{tags.get("update_frequency")}
-工具描述：{tags.get("description") or ""}
+Question: {question}
+Tool name: {tool_name}
+Tool timeliness (timeliness): {tags.get("timeliness")}
+Tool description: {tags.get("description") or ""}
 
-请只输出JSON：
-{{
+Please output JSON only:
+{
   "match": "yes|no",
-  "reason": "20字以内"
-}}
+  "reason": "within 20 words"
+}
 """.strip()
 
 
@@ -160,37 +161,37 @@ def evaluate_compliance_one(result: dict, tool_meta: Dict[str, dict], judge: Com
         logger.info("[Compliance Skip] id=%s no select_tools", qid)
         return {
             "eligible": False,
-            "fmr": None,
+            "tmr": None,
             "imr": None,
             "dmr": None,
         }
 
     flags = {
         "eligible": True,
-        "fmr": 0,
+        "tmr": 0,
         "imr": 0,
         "dmr": 0,
     }
 
-    # FMR (LLM judge per tool, any mismatch -> 1)
-    fmr_any = False
-    fmr_judged = False
+    # TMR (LLM judge per tool, any mismatch -> 1)
+    tmr_any = False
+    tmr_judged = False
     for tool in select_tools:
         tags = tool_meta.get(tool)
         if tags is None:
-            logger.info("[FMR Skip] id=%s tool=%s no metadata", qid, tool)
+            logger.info("[TMR Skip] id=%s tool=%s no metadata", qid, tool)
             continue
-        prompt = _build_freshness_prompt(question, tool, tags)
+        prompt = _build_timeliness_prompt(question, tool, tags)
         matched = _judge_match(judge, prompt)
         if matched is None:
-            logger.info("[FMR Skip] id=%s tool=%s judge_invalid", qid, tool)
+            logger.info("[TMR Skip] id=%s tool=%s judge_invalid", qid, tool)
             continue
-        fmr_judged = True
+        tmr_judged = True
         if not matched:
-            fmr_any = True
-            logger.info("[FMR] id=%s tool=%s mismatch", qid, tool)
-    if fmr_judged and fmr_any:
-        flags["fmr"] = 1
+            tmr_any = True
+            logger.info("[TMR] id=%s tool=%s mismatch", qid, tool)
+    if tmr_judged and tmr_any:
+        flags["tmr"] = 1
 
     # IMR (LLM judge per tool, any mismatch -> 1)
     imr_any = False
@@ -239,7 +240,7 @@ def summarize_compliance(results: List[dict], tool_meta: Dict[str, dict]) -> dic
     if not results:
         return {}
     toolcall_denom = 0
-    fmr_count = 0
+    tmr_count = 0
     imr_count = 0
     dmr_count = 0
 
@@ -248,18 +249,18 @@ def summarize_compliance(results: List[dict], tool_meta: Dict[str, dict]) -> dic
         if not flags.get("eligible"):
             continue
         toolcall_denom += 1
-        fmr_count += 1 if flags.get("fmr") else 0
+        tmr_count += 1 if flags.get("tmr") else 0
         imr_count += 1 if flags.get("imr") else 0
         dmr_count += 1 if flags.get("dmr") else 0
 
     metrics = {
-        "fmr": (fmr_count / toolcall_denom) if toolcall_denom else None,
+        "tmr": (tmr_count / toolcall_denom) if toolcall_denom else None,
         "imr": (imr_count / toolcall_denom) if toolcall_denom else None,
         "dmr": (dmr_count / toolcall_denom) if toolcall_denom else None,
     }
     logger.info(
-        "[Compliance Summary] FMR=%.3f IMR=%.3f DMR=%.3f",
-        metrics.get("fmr") or 0.0,
+        "[Compliance Summary] TMR=%.3f IMR=%.3f DMR=%.3f",
+        metrics.get("tmr") or 0.0,
         metrics.get("imr") or 0.0,
         metrics.get("dmr") or 0.0,
     )
