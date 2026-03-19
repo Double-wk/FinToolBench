@@ -113,4 +113,13 @@ Prerequisite: you must register and log in to your own RapidAPI account before r
 
 ## Citation
 
-If you use this benchmark in academic work, please cite the FinToolBench paper.
+If you use this benchmark in academic work, please cite the FinToolBench paper:
+
+```bibtex
+@article{lu2026fintoolbench,
+  title={FinToolBench: Evaluating LLM Agents for Real-World Financial Tool Use},
+  author={Lu, Jiaxuan and Wang, Kong and Wang, Yemin and Tang, Qingmei and Zeng, Hongwei and Chen, Xiang and Pi, Jiahao and Deng, Shujian and Chen, Lingzhi and Fu, Yi and Yang, Kehua and Sun, Xiao},
+  journal={arXiv preprint arXiv:2603.08262},
+  year={2026},
+  doi={10.48550/arXiv.2603.08262}
+}
