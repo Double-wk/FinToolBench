@@ -94,10 +94,10 @@ Tool intent (intent_type): {tags.get("intent_type")}
 Tool description: {tags.get("description") or ""}
 
 Output JSON only:
-{
+{{
   "match": "yes|no",
   "reason": "within 20 words"
-}
+}}
 """.strip()
 
 
@@ -112,16 +112,14 @@ Tool regulatory domain (regulatory_domains): {tags.get("regulatory_domains")}
 Tool description: {tags.get("description") or ""}
 
 Please output JSON only:
-{
+{{
   "match": "yes|no",
   "reason": "within 20 words"
-}
+}}
 """.strip()
 
 
 def _build_timeliness_prompt(question: str, tool_name: str, tags: dict) -> str:
-    print(tags.get("description"))
-    print(tags.get("timeliness"))
     return f"""
 You are a financial tool compliance evaluator. Please determine whether the "timeliness requirement of the question" matches the "tool data timeliness".
 Only output whether they match, and ignore whether the tool call succeeds.
@@ -132,10 +130,10 @@ Tool timeliness (timeliness): {tags.get("timeliness")}
 Tool description: {tags.get("description") or ""}
 
 Please output JSON only:
-{
+{{
   "match": "yes|no",
   "reason": "within 20 words"
-}
+}}
 """.strip()
 
 

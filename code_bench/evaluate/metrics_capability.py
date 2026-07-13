@@ -129,11 +129,11 @@ Model answer: {answer}
 Gold answer: {gold}
 
 Please output JSON only:
-{
+{{
   "score": 0.0,
   "label": "correct|wrong",
   "reason": "within 20 words"
-}
+}}
 """.strip()
     if answer_type == "choice":
         return f"""
@@ -147,11 +147,11 @@ Model answer: {answer}
 Gold answer: {gold}
 
 Please output JSON only:
-{
+{{
   "score": 0.0,
   "label": "correct|wrong",
   "reason": "within 20 words"
-}
+}}
 """.strip()
     if answer_type == "criterium":
         return f"""
@@ -171,11 +171,11 @@ Model answer: {answer}
 Gold answer: {gold}
 
 Please output JSON only:
-{
+{{
   "score": 0.0,
   "label": "correct|partial|wrong",
   "reason": "within 20 words"
-}
+}}
 """.strip()
     return f"""
 You are a strict evaluator. Please judge the correctness of the "model answer" based on the "gold answer".
@@ -190,11 +190,11 @@ Model answer: {answer}
 Gold answer: {gold}
 
 Please output JSON only:
-{
+{{
   "score": 0.0,
   "label": "correct|partial|wrong",
   "reason": "within 20 words"
-}
+}}
 """.strip()
 
 

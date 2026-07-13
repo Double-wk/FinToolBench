@@ -178,8 +178,8 @@ def evaluate_dataset(
 ) -> Tuple[List[dict], dict]:
     tool_meta_path = os.getenv("TOOL_METADATA_PATH", "tools/tools_all_annotated.jsonl")
     tool_meta = load_tool_metadata(tool_meta_path)
-    judge = LLMJudge(model=os.getenv("JUDGE_MODEL", "ep-20251101221159-hhmrg"))
-    compliance_judge = ComplianceJudge(model=os.getenv("JUDGE_MODEL", "ep-20251101221159-hhmrg"))
+    judge = LLMJudge(model=os.getenv("JUDGE_MODEL", "gpt-5.1"))
+    compliance_judge = ComplianceJudge(model=os.getenv("JUDGE_MODEL", "gpt-5.1"))
 
     results = []
     for qid, example in tqdm(data.items(), total=len(data), desc="Evaluating"):
