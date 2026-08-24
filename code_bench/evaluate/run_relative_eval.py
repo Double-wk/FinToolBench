@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Dict
 
 from evaluator import evaluate_dataset, load_jsonl_as_dict
+from validate_inputs import validate_input_files
 
 
 os.makedirs("./logs", exist_ok=True)
@@ -35,11 +36,31 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluator (no baseline)")
     parser.add_argument("--inputs", nargs="+", required=True, help="result jsonl files")
     parser.add_argument("--output_dir", required=True, help="output directory")
+    parser.add_argument(
+        "--tool_manifest",
+        default=os.getenv("TOOL_METADATA_PATH", "tools/tools_all_annotated.jsonl"),
+        help="tool metadata JSONL used for compliance evaluation",
+    )
+    parser.add_argument(
+        "--skip_input_validation",
+        action="store_true",
+        help="skip manifest and trace schema validation before evaluation",
+    )
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
     logger.info("Start evaluation: inputs=%s output_dir=%s", args.inputs, args.output_dir)
 
+    os.environ["TOOL_METADATA_PATH"] = args.tool_manifest
+    if not args.skip_input_validation:
+        validation = validate_input_files(args.tool_manifest, trace_paths=args.inputs)
+        if not validation.ok:
+            for issue in validation.errors[:20]:
+                logger.error("Input validation error: %s", issue.format())
+            raise SystemExit(
+                f"Input validation failed with {len(validation.errors)} error(s)."
+            )
+        logger.info("Input validation passed: %s", validation.stats)
 
     all_metrics = {}
     for input_path in args.inputs:
